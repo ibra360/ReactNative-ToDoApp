@@ -7,7 +7,7 @@
  */
 
 import React, {useState, useEffect} from 'react';
-// import type {Node} from 'react';
+import {AsyncStorage} from 'react-native';
 import {
   SafeAreaView,
   ScrollView,
@@ -40,10 +40,47 @@ const HomeScreen = ({navigation}) => {
   const [text, setText] = React.useState([]);
   const [input, setInput] = useState('');
   const [modalVisible, setModalVisible] = React.useState(false);
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  // const backgroundStyle = {
+  //   backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  // };
+
+  const AddItem = async () => {
+    try {
+      // if (text.length > 0) {
+      setModalVisible(!modalVisible);
+      console.log('Input', input);
+
+      text.push(input);
+      await AsyncStorage.setItem('dd', JSON.stringify(text));
+      setInput('');
+      GetItem();
+      // }
+    } catch (error) {
+      console.log('Error saving data', error);
+    }
   };
 
+  const GetItem = async () => {
+    let getTask;
+    try {
+      getTask = await AsyncStorage.getItem('dd');
+      setText(JSON.parse(getTask));
+    } catch (error) {
+      console.log('Error saving data', error);
+    }
+    console.log('str=====', JSON.parse(getTask));
+  };
+
+  const onDelete = async t => {
+    let filtered = text.filter(te => te !== t);
+    setText(filtered);
+    await AsyncStorage.setItem('dd', JSON.stringify(filtered));
+    console.log('text', filtered);
+  };
+
+  useEffect(() => {
+    GetItem();
+  }, []);
   return (
     <View
       style={{
@@ -52,26 +89,21 @@ const HomeScreen = ({navigation}) => {
         marginTop: 30,
       }}>
       <Button
-        style={{padding: 15}}
         title="Add New Task"
         onPress={() => {
           setModalVisible(true);
         }}
       />
 
-      {text.length > 0 ? (
+      {text ? (
         <ScrollView style={styles.scrollView}>
           {text.map((t, i) => {
             return (
-              <View>
+              <View style={styles.taskView}>
                 <TouchableOpacity
                   style={styles.delete}
-                  onPress={() => {
-                    text.splice(i, 1);
-                    setText([...text]);
-                    console.log('text', text, i);
-                  }}>
-                  <Text>X</Text>
+                  onPress={() => onDelete(t)}>
+                  <Text style={{color: 'white', textAlign: 'center'}}>X</Text>
                 </TouchableOpacity>
                 <Text key={i} style={styles.text2}>
                   {t}
@@ -107,15 +139,16 @@ const HomeScreen = ({navigation}) => {
               disabled={!input}
               style={[styles.button, styles.buttonOpen]}
               onPress={() => {
-                setModalVisible(!modalVisible);
-                text.push(input);
-                setInput('');
+                AddItem();
               }}>
               <Text style={styles.textStyle}>Create Task</Text>
             </Pressable>
             <Pressable
               style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}>
+              onPress={() => {
+                setModalVisible(!modalVisible);
+                setInput('');
+              }}>
               <Text style={styles.textStyle}>Cancel</Text>
             </Pressable>
           </View>
@@ -145,23 +178,33 @@ const styles = StyleSheet.create({
     backgroundColor: 'aqua',
   },
   delete: {
-    padding: 5,
-    width: 18,
+    padding: 2.5,
+    width: 22,
+    // height: 21,
     color: 'white',
-    backgroundColor: 'pink',
+    borderRadius: 15,
+    backgroundColor: 'orangered',
   },
   text2: {
     flex: 1,
     textAlign: 'center',
-    color: 'grey',
+    color: 'white',
     backgroundColor: 'silver',
-    marginVertical: 5,
+    // marginVertical: 5,
     width: '100%',
-    padding: 5,
-    marginVertical: 10,
+    // padding: 5,
+    // marginVertical: 10,
     fontSize: 19,
   },
-
+  taskView: {
+    display: 'flex',
+    flexDirection: 'row',
+    backgroundColor: 'silver',
+    marginTop: 5,
+    padding: 5,
+    borderRadius: 15,
+    justifyContent: 'center',
+  },
   centeredView: {
     flex: 1,
     justifyContent: 'center',
