@@ -90,6 +90,7 @@ const HomeScreen = ({navigation}) => {
       }}>
       <Button
         title="Add New Task"
+        color="deepskyblue"
         onPress={() => {
           setModalVisible(true);
         }}
@@ -229,14 +230,14 @@ const styles = StyleSheet.create({
   button: {
     borderRadius: 20,
     padding: 10,
-    elevation: 2,
+    elevation: 5,
   },
   buttonOpen: {
-    backgroundColor: '#F194FF',
+    backgroundColor: 'dodgerblue',
     marginVertical: 5,
   },
   buttonClose: {
-    backgroundColor: '#2196F3',
+    backgroundColor: 'slategray',
   },
   textStyle: {
     color: 'white',
